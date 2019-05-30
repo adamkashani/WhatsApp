@@ -1,0 +1,46 @@
+main {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+
+  nav {
+    flex: 20%;
+    border-right: solid black 1px;
+    background-color: #b6bc68;
+    ul {
+      padding: 0;
+      margin: 0;
+      list-style-type: none;
+      li {
+        margin-left: 15px;
+        text-align: left;
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        &:hover {
+          opacity: 0.6;
+          background: #b6bc68be;
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  div.router-content {
+    width: -webkit-fill-available;
+    overflow-y: auto;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+}
+button {
+  margin-left: inherit;
+  color: #43443e;
+  background: #b6bc68;
+}
+
+b {
+  color: #43443e;
+}

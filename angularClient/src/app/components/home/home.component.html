@@ -1,0 +1,15 @@
+<main>
+  <nav class="navigation">
+    <h3 class="text-center"><b> Chat List</b></h3>
+    <hr>
+    <ul *ngFor="let user of clientService.listOfUsers ; let i = index">
+      <li>
+        <b>{{1+i}}. {{user}}</b>
+        <button (click)="changeChatClient(user)"><b> Open</b></button>
+      </li>
+    </ul>
+  </nav>
+  <div class="router-content">
+    <app-chet> </app-chet>
+  </div>
+</main>
