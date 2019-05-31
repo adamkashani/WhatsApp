@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { Message } from '../models/message';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { WebSocketSubject } from 'rxjs/observable/dom/WebSocketSubject';
-import { Observable } from 'rxjs';
+import { Observable, observable } from 'rxjs';
 import { CanActivate, Router } from '@angular/router';
+import { element } from 'protractor';
 @Injectable({
   providedIn: 'root'
 })
@@ -12,8 +13,9 @@ export class ClientService implements CanActivate {
   // to send the mesaage
   clientName: string;
 
+  // urlLogin: string = 'http://localhost:8081/login';
   urlLogin: string = 'http://localhost:8081/login';
-  // urlLogin: string = 'http://localhost:8080/login';
+  urlOnlineUsers: string = 'http://localhost:8081/onlineUsers';
   //string = name user chet , all the message between clients
   mapChat: Map<string, Array<Message>> = new Map();
 
@@ -29,7 +31,7 @@ export class ClientService implements CanActivate {
 
   public socket$: WebSocketSubject<Message>;
 
-  constructor(private httpClient: HttpClient ,public router: Router) {
+  constructor(private httpClient: HttpClient, public router: Router) {
 
     this.token = sessionStorage.getItem('token')
     this.sender = sessionStorage.getItem('userName')
@@ -51,6 +53,9 @@ export class ClientService implements CanActivate {
   }
 
   onLogin() {
+    //get all user list from server
+    this.onlineUsers()
+    //connect to webSocket 
     this.socket$ = new WebSocketSubject(`ws://localhost:1002?token=${this.token}`);
     this.socket$
       .subscribe(
@@ -92,5 +97,19 @@ export class ClientService implements CanActivate {
     // let headers = new HttpHeaders();
     // headers = headers.set('Content-Type', 'application/json');
     return this.httpClient.post(this.urlLogin, { 'name': userName }, { responseType: 'text' });
+  }
+
+  onlineUsers() {
+    this.httpClient.get<Set<string>>(this.urlOnlineUsers + `?token=${this.token}`).subscribe(
+      (next) => {
+        console.log(`the next value is ${JSON.stringify(next)}`)
+        next.forEach(element => {
+          if (element != this.sender)
+            this.listOfUsers.add(element)
+        });
+        console.log(`the listOfUsers value is ${JSON.stringify(this.listOfUsers)}`)
+      }, (error) => {
+        console.log(`the error from get onlineUsers : ${error}`)
+      })
   }
 }

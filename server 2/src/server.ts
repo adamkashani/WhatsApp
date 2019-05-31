@@ -5,12 +5,12 @@ import * as jwt from "jsonwebtoken";
 import * as bodyParser from "body-parser";
 import * as cookieParser from "cookie-parser";
 import * as path from "path"
-import * as fs from 'fs';
 
 
 import { Message } from './message';
 import { RedisService } from './redisService';
 import { WebSocketService } from './webSocketService';
+
 
 const app = express();
 
@@ -48,6 +48,12 @@ server.listen(process.env.PORT || 1002, () => {
     console.log(`Server started on port webSocket  ${server.address().port} :)`);
 });
 
+
+
+//TODO להוסיף מתודה ראסט שנקבל מימנה את כול הרשימת יוזרים שהם מחוברים
+
+
+
 // Rest api for login 
 app.post('/login', (request, response) => {
     let name: string = request.body.name;
@@ -70,20 +76,39 @@ app.post('/login', (request, response) => {
             response.send(token)
             return;
         } else {
-            response.status(404)
+            response.status(403)
             response.send(`the user name ${name} not exists`)
             return;
         }
     });
 })
 
+app.get('/onlineUsers', (request, response) => {
+
+    let token = request.query.token;
+    console.log(`from onlineUsers the token value ${token}`)
+    if (token) {
+        redisService.redisClient.GET(token, (error, result) => {
+            if (result) {
+                console.log(`from onlineUsers rest api get from redis value by name , result :  ${result}`)
+                redisService.redisClient.lrange(redisService.online, 0, -1, function (err, result) {
+                    console.log("from redisService getOnlineList users redis : ", result);
+                    response.json(result)
+                    return;
+                })
+            } else {
+                response.status(403)
+                response.send('Not registered in the system')
+            }
+        })
+    } else {
+        response.status(403)
+        response.send('Not registered in the system')
+    }
+})
+
 app.get('/', (request, response) => {
     response.setHeader('Content-Type', 'text/html');
-    // response.writeHead(200, {'Content-Type': 'text/html'});
-    // fs.readFile(path.join(__dirname, '../../client/index.html'), 'utf8', (error, data) => {
-    //     // ...
-    // })
-    console.log(`the response haders ` , response.getHeaders())
     response.sendFile(path.join(__dirname, 'index.html'));
 })
 

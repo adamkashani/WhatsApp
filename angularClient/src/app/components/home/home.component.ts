@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { ClientService } from 'src/app/service/client.service';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import {MatButtonModule} from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 
 
 @Component({
@@ -15,6 +15,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.clientService.onLogin();
+    // this.clientService.onlineUsers();
   }
   ngAfterViewInit(): void {
     // this.clientService.isBroadcast = false;
