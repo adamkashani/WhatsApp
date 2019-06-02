@@ -48,12 +48,6 @@ server.listen(process.env.PORT || 1001, () => {
     console.log(`Server started on port webSocket  ${server.address().port} :)`);
 });
 
-
-
-//TODO להוסיף מתודה ראסט שנקבל מימנה את כול הרשימת יוזרים שהם מחוברים
-
-
-
 // Rest api for login 
 app.post('/login', (request, response) => {
     let name: string = request.body.name;
