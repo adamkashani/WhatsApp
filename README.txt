@@ -11,10 +11,10 @@ the application can run on cluster ,
 the apps communicate with pubsub redis DB - for example you can run two servers(server1 and server2) and to see the apps communicate 
 
 
-platforms i've used:
+platforms i've used in this project:
 
 node.js server side 
-angular6 client side 
+angular7 client side 
 redis NO-SQL DB 
 
 
