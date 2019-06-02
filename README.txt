@@ -5,9 +5,9 @@ A simple implementation of a Websocket server based on node/express written in t
 
 							chatApp
 
-the applications allows to client they are connected to app and be online user and chat with other online clients
+the application allows to client they are connected to app and be online user and chat with other online clients
 
-the applications can run on cluster ,
+the application can run on cluster ,
 the apps communicate with pubsub redis DB - for example you can run two servers(server1 and server2) and to see the apps communicate 
 
 
