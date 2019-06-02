@@ -5,7 +5,7 @@ A simple implementation of a Websocket server based on node/express written in t
 
 							chatApp
 
-the applications allows to client connect to app and be online user and chat with other online clients
+the applications allows to client they are connected to app and be online user and chat with other online clients
 
 the applications can run on cluster and the apps communicate with pubsub redis DB - for example you can run 2 servers(server1 and server2) and see the app communicate 
 
@@ -22,10 +22,10 @@ who to run this app?
 Terminal command:
 
 Server side
-1. npm install – for install all dependency 
-2. npm run build – compiling from .ts to .js
-3. npm start – to run the app 
+1. npm install â€“ for install all dependency 
+2. npm run build â€“ compiling from .ts to .js
+3. npm start â€“ to run the app 
 
 Client side 
-1. npm install – for install all dependency
+1. npm install â€“ for install all dependency
 2. ng serve to run the app with angular-cli  
