@@ -24,6 +24,7 @@ export class WebSocketService {
 
 
     init() {
+
         console.log(`start init from WebSocketService`)
 
         interface ExtWebSocket extends WebSocket {
@@ -42,8 +43,6 @@ export class WebSocketService {
             //connection is up, let's add a simple simple event
             ws.on('message', (msg: string) => {
                 console.log(' the CLIENTS size  : ', this.CLIENTS.size)
-
-                //set timeout
 
                 // from string to obj message
                 const message = JSON.parse(msg) as Message;
@@ -66,8 +65,6 @@ export class WebSocketService {
             console.log(`from web socket connction url :  ${url}`)
             let token = url.substring(8, url.length);
 
-
-
             console.log(`from web socket connction token value ${token}`)
             //get the client name conncted from redis 
             this.redisService.redisClient.GET(token, (err, result) => {
@@ -80,7 +77,6 @@ export class WebSocketService {
                     ws.terminate()
                     return;
                 }
-
 
                 //insert new client to map clients
                 console.log(`client  map set new before the dize  : ${this.CLIENTS.size}`)
@@ -100,21 +96,10 @@ export class WebSocketService {
                 //create message to send 
                 let message = this.createMessage('', true, senderName, '');
                 //for server 2 to publis there the new user is connected
-
                 console.log("befor stringify message value is  : " + message);
                 console.log("adduserPUBLISH the message to publish bufferBase64 : " + this.bufferBase64(message));
                 this.redisService.redisClient.publish(this.redisService.addUserPUBSUB, this.bufferBase64(message))
             })
-
-            
-            //נמחק את החלק הזה כי הלקוח יקבל את רשימת כלל האנשים מ redis DB  
-            //
-            //send list of client to the new user 
-            // this.CLIENTS.forEach((value, key) => {
-            //     ws.send(this.createMessage('', true, key, ''), (error) => {
-            //         console.log(error)
-            //     })
-            // });
 
             ws.on('error', (err) => {
                 this.CLIENTS.forEach((value, key) => {
@@ -122,6 +107,8 @@ export class WebSocketService {
                         this.CLIENTS.delete(key);
                         this.redisService.removeOnlineList(key)
                         console.log(`remove webSocket client name  ${key}`)
+                        console.log(`remove webSocket client token  ${token}`)
+                        this.redisService.redisClient.del(token)
                         // TODO צריך לידאוג כאן לישלוח הודעה ללקוחות ולימחוק את אותו יוזר שהיתנתק ישלנו כבר את השם שלו שזה בעצם המפתח במתודה 
                     }
                 })
@@ -129,28 +116,11 @@ export class WebSocketService {
             })
         });
 
-        // run all the sockets client and remove if the client not connect 
-        // TODO remove from CLIENTS the web socket 
-        setInterval(() => {
-            this.webSocketServer.clients.forEach((ws: WebSocket) => {
-
-                const extWs = ws as ExtWebSocket;
-
-                if (!extWs.isAlive) {
-                    return ws.terminate();
-                }
-                extWs.isAlive = false;
-                ws.ping(null, undefined);
-            });
-        }, 10000);
-
-
     }
 
 
     bufferBase64(messageString: string): string {
         return Buffer.from(messageString).toString('base64');
     }
-
 
 }

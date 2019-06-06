@@ -67,7 +67,6 @@ export class ClientService implements CanActivate {
             // read ho send the message
             let chatList = this.mapChat.get(message.sender);
             if (chatList) {
-              //אולי נשמור פה רק את תוכן ההודעה שנישלחה
               chatList.push(message)
             } else {
               let chatList = new Array<Message>();

@@ -52,7 +52,7 @@ server.listen(process.env.PORT || 1002, () => {
 app.post('/login', (request, response) => {
     let name: string = request.body.name;
     let result: boolean;
-    redisService.redisClient.lrange('users', 0, -1, function (err, reply) {
+    redisService.redisClient.lrange('users', 0, -1, (err, reply) => {
         console.log("login api users redis : ", reply);
         // return list from redis
         reply.forEach(element => {
@@ -85,7 +85,7 @@ app.get('/onlineUsers', (request, response) => {
         redisService.redisClient.GET(token, (error, result) => {
             if (result) {
                 console.log(`from onlineUsers rest api get from redis value by name , result :  ${result}`)
-                redisService.redisClient.lrange(redisService.online, 0, -1, function (err, result) {
+                redisService.redisClient.lrange(redisService.online, 0, -1, (err, result) => {
                     console.log("from redisService getOnlineList users redis : ", result);
                     response.json(result)
                     return;

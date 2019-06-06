@@ -46,7 +46,6 @@ export class RedisService {
                             toSendMessage.send(JSON.stringify(message))
                         }
                     } else if (channel === this.addUserPUBSUB) {
-
                         // בדיקה צריך לימחוק אחר כך
                         this.clientMap.forEach((v, clientName) => {
                             console.log('from map the client name   : ', clientName)
@@ -75,7 +74,7 @@ export class RedisService {
                 } catch (error) {
                     console.log(`error try cast data to jsonObject the data :  ${data}`)
                 }
-            }, 500);
+            }, 50);
         })
 
         this.redisSub.subscribe(this.addUserPUBSUB);
@@ -93,13 +92,11 @@ export class RedisService {
 
     removeOnlineList(userName: string): void {
         console.log(`start removeOnlineList redis username to remove  : ${userName} `)
-        // let result = this.redisClient.del(this.online, userName)
         let result = this.redisClient.lrem(this.online, 0, userName, (data) => {
             console.log(data);
             console.log(`result from redis removeOnlineList is : ${result} `)
         });
     }
-
 
     fromBase64ToString(messageString: string): string {
         let string = Buffer.from(messageString, 'base64').toString();

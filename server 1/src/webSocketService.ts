@@ -108,6 +108,8 @@ export class WebSocketService {
                         this.CLIENTS.delete(key);
                         this.redisService.removeOnlineList(key)
                         console.log(`remove webSocket client name  ${key}`)
+                        console.log(`remove webSocket client token  ${token}`)
+                        this.redisService.redisClient.del(token)
                         // TODO צריך לידאוג כאן לישלוח הודעה ללקוחות ולימחוק את אותו יוזר שהיתנתק ישלנו כבר את השם שלו שזה בעצם המפתח במתודה 
                     }
                 })
@@ -115,19 +117,6 @@ export class WebSocketService {
             })
         });
 
-        // run all the sockets client and remove if the client not connect 
-        setInterval(() => {
-            this.webSocketServer.clients.forEach((ws: WebSocket) => {
-
-                const extWs = ws as ExtWebSocket;
-
-                if (!extWs.isAlive) {
-                    return ws.terminate();
-                }
-                extWs.isAlive = false;
-                ws.ping(null, undefined);
-            });
-        }, 10000);
     }
 
     bufferBase64(messageString: string): string {
