@@ -52,16 +52,13 @@ server.listen(process.env.PORT || 1002, () => {
 app.post('/login', (request, response) => {
     let name: string = request.body.name;
     let result: boolean;
-    redisService.redisClient.lrange('users', 0, -1, (err, reply) => {
-        console.log("login api users redis : ", reply);
-        // return list from redis
-        reply.forEach(element => {
-            if (element === name) {
-                result = true;
-            }
-        })
-        console.log(`login the result from redis ${result}`)
-        if (result == true) {
+    redisService.redisClient.SISMEMBER('userss', name, (err, reply) => {
+        console.log("login api set users redis : ", reply);
+        if (reply === 0) {
+            response.status(403)
+            response.send(`the user name ${name} not exists`)
+            return;
+        } else {
             let token = jwt.sign({ username: name }, 'shhhhh');
             //insert the token key and value the user name
             redisService.redisClient.set(token, name);
@@ -69,12 +66,8 @@ app.post('/login', (request, response) => {
             response.cookie('token', token);
             response.send(token)
             return;
-        } else {
-            response.status(403)
-            response.send(`the user name ${name} not exists`)
-            return;
         }
-    });
+    })
 })
 
 app.get('/onlineUsers', (request, response) => {
