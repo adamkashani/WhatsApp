@@ -27,7 +27,8 @@ Terminal command:
 Server side
 1. npm install – for install all dependency 
 2. npm run build – compiling from .ts to .js
-3. npm start – to run the app 
+3. copy web folder (and everything inside the folder) to dist/server (where are all TS files)
+4. npm start – to run the app 
 
 Client side 
 1. npm install – for install all dependency
