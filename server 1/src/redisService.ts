@@ -56,7 +56,7 @@ export class RedisService {
                     //if the client not exists hare push for all client the new client connctions 
                     console.log(`senderSocket : ${senderSocket}`)
                     if (senderSocket) {
-                        console.log(`the client exists in the app`)
+                        console.log(`from redis pubsub the client exists in the app not need to send for all clients for new client connected`)
                     } else {
                         console.log(`from channel add-user : ${data}`)
                         console.log('the size of clients in web socket ', this.webSocketServer.clients.size)

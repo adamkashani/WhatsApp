@@ -55,9 +55,8 @@ server.listen(process.env.PORT || 1001, () => {
 app.post('/login', (request, response) => {
     let user: User = request.body as User;
     console.log(`from login the user : ${JSON.stringify(user)}`)
-    // sqlService.login(user, response);
     let name = user.name;
-    redisService.userExists(user.name).then((resolve) => {
+    sqlService.login(user).then((resolve) => {
         console.log("from redisService userExists users redis : ", resolve);
         response.cookie('token', resolve);
         response.send(resolve)
@@ -70,13 +69,13 @@ app.post('/login', (request, response) => {
         })
 })
 
-app.post('/signIn', (request, response) => {
-    let user: User = request.body as User;
-    sqlService.registration(user, response);
-});
+// app.post('/signIn', (request, response) => {
+//     let user: User = request.body as User;
+//     sqlService.registration(user, response);
+// });
 
 app.get('/onlineUsers', (request, response) => {
-    let token = request.query.token;
+    let token = request.query.token; 
     console.log(`from onlineUsers the token value ${token}`)
     // if the request have token and the token on the redis db 
     if (token) {
