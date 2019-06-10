@@ -1,7 +1,7 @@
 import * as WebSocket from 'ws';
 import * as http from 'http';
 
-import { Message } from './message';
+import { Message } from './types/message';
 import { RedisService } from './redisService';
 
 export class WebSocketService {
@@ -17,15 +17,16 @@ export class WebSocketService {
         this.init();
     }
 
-
-    createMessage(content: string, isBroadcast = false, sender = 'NS', clientName?: any): string {
+    createMessage(content: string, isBroadcast = false, sender: string, clientName?: any): string {
         return JSON.stringify(new Message(content, isBroadcast, clientName, sender));
     }
 
-
     init() {
         console.log(`start init from WebSocketService`)
+        this.startWebSocket()
+    }
 
+    startWebSocket() {
         interface ExtWebSocket extends WebSocket {
             isAlive: boolean;
         }
@@ -57,7 +58,7 @@ export class WebSocketService {
                 } else {
                     // if the client not exsis on this server publish to all instanse 
                     console.log("the message to publish bufferBase64 : " + this.bufferBase64(JSON.stringify(message)));
-                    this.redisService.redisClient.publish(this.redisService.messagePUBSUB, this.bufferBase64(JSON.stringify(message)))
+                    this.redisService.publish(this.redisService.messagePUBSUB, this.bufferBase64(JSON.stringify(message)))
                 }
             });
 
@@ -67,12 +68,13 @@ export class WebSocketService {
             let token = url.substring(8, url.length);
 
             console.log(`from web socket connction token value ${token}`)
+
             //get the client name conncted from redis 
             this.redisService.redisClient.GET(token, (err, result) => {
                 let senderName = result
                 console.log(`the result from redis get user by token : ${result}`)
 
-                //if the client try to connect with not token we kiil the socket  
+                //if the client try to connect with token not exists on redis db we kiil the socket  
                 if (!result) {
                     console.log(`client try to coonnect with not token : ${result}`)
                     ws.terminate()
@@ -99,7 +101,7 @@ export class WebSocketService {
 
                 console.log("befor stringify message value is  : " + message);
                 console.log("adduserPUBLISH the message to publish bufferBase64 : " + this.bufferBase64(message));
-                this.redisService.redisClient.publish(this.redisService.addUserPUBSUB, this.bufferBase64(message))
+                this.redisService.publish(this.redisService.addUserPUBSUB, this.bufferBase64(message))
             })
 
             ws.on('error', (err) => {
@@ -122,5 +124,4 @@ export class WebSocketService {
     bufferBase64(messageString: string): string {
         return Buffer.from(messageString).toString('base64');
     }
-
 }

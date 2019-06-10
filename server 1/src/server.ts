@@ -1,15 +1,16 @@
 import * as express from 'express';
 import * as http from 'http';
 import * as WebSocket from 'ws';
-import * as jwt from "jsonwebtoken";
 import * as bodyParser from "body-parser";
 import * as cookieParser from "cookie-parser";
 import * as path from "path"
+import * as jwt from "jsonwebtoken";
 
 
-import { Message } from './message';
 import { RedisService } from './redisService';
 import { WebSocketService } from './webSocketService';
+import { User } from './types/user';
+import { DataBaseService } from './dataBaseService';
 
 
 const app = express();
@@ -43,6 +44,8 @@ const redisService = new RedisService(wss, CLIENTS);
 
 const webSocketService = new WebSocketService(wss, redisService, CLIENTS)
 
+const sqlService = new DataBaseService(redisService);
+
 //start webSocket server
 server.listen(process.env.PORT || 1001, () => {
     console.log(`Server started on port webSocket  ${server.address().port} :)`);
@@ -50,47 +53,42 @@ server.listen(process.env.PORT || 1001, () => {
 
 // Rest api for login 
 app.post('/login', (request, response) => {
-    let name: string = request.body.name;
-    let result: boolean;
-    redisService.redisClient.SISMEMBER('userss', name, (err, reply) => {
-        console.log("login api set users redis : ", reply);
-        if (reply === 0) {
+    let user: User = request.body as User;
+    console.log(`from login the user : ${JSON.stringify(user)}`)
+    // sqlService.login(user, response);
+    let name = user.name;
+    redisService.userExists(user.name).then((resolve) => {
+        console.log("from redisService userExists users redis : ", resolve);
+        response.cookie('token', resolve);
+        response.send(resolve)
+        return;
+    },
+        (reject) => {
             response.status(403)
             response.send(`the user name ${name} not exists`)
             return;
-        } else {
-            let token = jwt.sign({ username: name }, 'shhhhh');
-            //insert the token key and value the user name
-            redisService.redisClient.set(token, name);
-            console.log(`from api login token value ${token}`)
-            response.cookie('token', token);
-            response.send(token)
-            return;
-        }
-    })
+        })
 })
 
-app.get('/onlineUsers', (request, response) => {
+app.post('/signIn', (request, response) => {
+    let user: User = request.body as User;
+    sqlService.registration(user, response);
+});
 
+app.get('/onlineUsers', (request, response) => {
     let token = request.query.token;
     console.log(`from onlineUsers the token value ${token}`)
+    // if the request have token and the token on the redis db 
     if (token) {
-        redisService.redisClient.GET(token, (error, result) => {
-            if (result) {
-                console.log(`from onlineUsers rest api get from redis value by name , result :  ${result}`)
-                redisService.redisClient.lrange(redisService.online, 0, -1, function (err, result) {
-                    console.log("from redisService getOnlineList users redis : ", result);
-                    response.json(result)
-                    return;
-                })
-            } else {
+        redisService.getListOnline(token).then((resolve) => {
+            console.log("from server api onlineUsers users redis : ", resolve);
+            response.json(resolve)
+        },
+            (reject) => {
+                console.log("from server api the token not exists in the system  : ", token);
                 response.status(403)
                 response.send('Not registered in the system')
-            }
-        })
-    } else {
-        response.status(403)
-        response.send('Not registered in the system')
+            })
     }
 })
 
