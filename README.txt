@@ -16,6 +16,7 @@ platforms i've used in this project:
 node.js server side 
 angular7 client side 
 redis NO-SQL DB 
+mySql SQL DB
 
 on each server folder you have the angular project on web folder (alredy compiling from angular to index.html) path request to get index html is base url of the project
  
