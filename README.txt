@@ -20,7 +20,7 @@ redis NO-SQL DB
 on each server folder you have the angular project on web folder (alredy compiling from angular to index.html) path request to get index html is base url of the project
  
 who to run this app?
-opne folder server1/server2 in IDE 
+opne folder server1 or server2 in IDE 
 
 Terminal command:
 
