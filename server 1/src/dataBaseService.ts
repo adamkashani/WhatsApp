@@ -29,13 +29,6 @@ export class DataBaseService {
             }
             else {
                 console.log("Connected!");
-
-                //      !!Test!!
-                // this.registration(new User('userName6', '123132')).then((resolve) => {
-                //     console.log(`registration Succeeded the resolve : ${resolve}`)
-                // }, (reject) => {
-                //     console.log(`registration faild the reject : ${reject}`)
-                // })
             }
         })
     }
@@ -58,7 +51,7 @@ export class DataBaseService {
                         //Convert user name from string to jwt(json web token)
                         let token = jwt.sign({ username: user.name }, 'shhhhh');
                         //Insert the token = key and value = user name
-                        this.redisService.redisClient.set(token, user.name);
+                        this.redisService.addSetTokenAndUserName(token, user.name);
                         console.log(`from api login token value ${token}`);
                         return resolve(token);
                     } else {
@@ -77,8 +70,8 @@ export class DataBaseService {
             if (this.userValidate(user)) {
                 this.nameExsist(user.name).then((resolve) => {
                     console.log(`the resolve : `, resolve)
+                    //if the name alredy exists return false
                     if (resolve) {
-                        //if the name alredy exists return false
                         return reject(`the user name alredy exist`)
                     } else {
                         let sql = 'INSERT INTO  users SET ?'

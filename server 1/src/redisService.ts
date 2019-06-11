@@ -85,15 +85,14 @@ export class RedisService {
     // add new user to List online 
     addOnlineUser(userName: string): void {
         console.log(`start addOnlineList redis username insert : ${userName} `)
-        let result = this.redisClient.rpush(this.online, userName)
+        let result = this.redisClient.SADD(this.online, userName)
         console.log(`result from redis addOnlineUser is : ${result} `)
     }
 
     // remove user from List online 
     removeOnlineList(userName: string): void {
         console.log(`start removeOnlineList redis username to remove  : ${userName} `)
-        // let result = this.redisClient.del(this.online, userName)
-        let result = this.redisClient.lrem(this.online, 0, userName, (data) => {
+        let result = this.redisClient.SREM(this.online, userName, (data) => {
             console.log(data);
             console.log(`result from redis removeOnlineList is : ${result} `)
         });
@@ -103,8 +102,7 @@ export class RedisService {
         return new Promise((resolve, reject) => {
             this.redisClient.GET(token, (error, result) => {
                 if (result) {
-                    console.log(`from onlineUsers rest api get from redis value by name , result :  ${result}`)
-                    this.redisClient.lrange(this.online, 0, -1, function (err, result) {
+                    this.redisClient.SMEMBERS(this.online, (err, result) => {
                         console.log("from redisService getOnlineList users redis : ", result);
                         return resolve(result)
                     })
@@ -158,5 +156,10 @@ export class RedisService {
         })
     }
 
+
+    //inser to map redis key= token value = userName 
+    addSetTokenAndUserName(token: string, userName: string) {
+        this.redisClient.set(token, userName);
+    }
 
 }

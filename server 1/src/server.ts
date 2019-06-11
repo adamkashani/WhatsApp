@@ -4,7 +4,6 @@ import * as WebSocket from 'ws';
 import * as bodyParser from "body-parser";
 import * as cookieParser from "cookie-parser";
 import * as path from "path"
-import * as jwt from "jsonwebtoken";
 
 
 import { RedisService } from './redisService';
@@ -105,7 +104,7 @@ app.get('/reconnect/:userName/:token', (request, response) => {
     let token = request.params.token;
     console.log(`from reconnect the userName : ${userName}  the token : ${token}`)
     //Insert the token = key and value = user name
-    redisService.redisClient.set(token, userName);
+    redisService.addSetTokenAndUserName(token, userName);
     response.setHeader('Content-Type', 'text/html');
     response.send(`Reconnect successfully passed`)
 })

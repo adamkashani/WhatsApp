@@ -44,8 +44,6 @@ export class WebSocketService {
             ws.on('message', (msg: string) => {
                 console.log(' the CLIENTS size  : ', this.CLIENTS.size)
 
-                //set timeout
-
                 // from string to obj message
                 const message = JSON.parse(msg) as Message;
                 // get the client we wont to send the message 
