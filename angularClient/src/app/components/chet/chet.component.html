@@ -10,6 +10,10 @@
     </div>
     <div #viewer class="body">
       <div class="viewer">
+<!-- 
+          <div [ng-class="apt.name.length >= 15 ? 'col-md-12' : (apt.name.length >= 10 ? 'col-md-6' : 'col-md-4')">
+              ...
+          </div> -->
         <div class="message" *ngFor="let msg of clientService.serverMessages"
           [ngClass]="{'bold': msg.isBroadcast, 'others': !isMine(msg)}">
           <div class="badge" [style.backgroundColor]="getSenderColor(msg.sender)">{{ getSenderInitials(msg.sender) }}

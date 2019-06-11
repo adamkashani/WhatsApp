@@ -3,7 +3,6 @@ import * as jwt from "jsonwebtoken";
 
 import { User } from "./types/user";
 import { RedisService } from "./redisService";
-import { Response } from "express";
 
 
 export class DataBaseService {
@@ -30,10 +29,12 @@ export class DataBaseService {
             }
             else {
                 console.log("Connected!");
-                // this.login(new User('adam', '123132')).then((resolve) => {
-                //     console.log(`login Succeeded the resolve : ${resolve}`)
+
+                //      !!Test!!
+                // this.registration(new User('userName6', '123132')).then((resolve) => {
+                //     console.log(`registration Succeeded the resolve : ${resolve}`)
                 // }, (reject) => {
-                //     console.log(`login faild the reject : ${reject}`)
+                //     console.log(`registration faild the reject : ${reject}`)
                 // })
             }
         })
@@ -70,32 +71,34 @@ export class DataBaseService {
         })
     }
 
-    registration(user: User, response: Response) {
-        if (this.userValidate(user)) {
-            if (this.nameExsist(user.name)) {
+    registration(user: User): Promise<boolean> {
+        return new Promise((resolvet, reject) => {
 
-                let sql = 'INSERT INTO  users SET ?'
-                this.connection.query(sql, [{ 'name': user.name }, { 'password': user.password }], (error, results) => {
-                    // if return error from sql api
-                    if (error) console.log(`error!! from DB registration the error message : ${error.message}`);
+            if (this.userValidate(user)) {
+                this.nameExsist(user.name).then((resolve) => {
+                    console.log(`the resolve : `, resolve)
+                    if (resolve) {
+                        //if the name alredy exists return false
+                        return reject(`the user name alredy exist`)
+                    } else {
+                        let sql = 'INSERT INTO  users SET ?'
+                        this.connection.query(sql, [user], (error, result) => {
+                            if (error) {
+                                console.log(`error!! from registration from mysql the error :  ${error.message}`)
+                            }
 
-                    if (results) {
-                        response.setHeader('Content-Type', 'text/html');
-                        response.status(200)
-                        response.send(`Registration successfully passed`)
+                            if (result) {
+                                console.log(`the result from my sql after registration : ${JSON.stringify(result)}`)
+                                return resolvet(true);
+                            }
+                        })
                     }
-                });
+                })
             } else {
-                console.log(`error!! from registration the user name alredy exists ${user.name}`)
-                response.status(404)
-                response.send(`user alredy exists`)
-
+                return reject(`the user name or password not validate`)
             }
-        } else {
-            console.log(`error!! from registration the user not valide ${user}`)
-            response.status(404)
-            response.send(`user not valide`)
-        }
+        })
+
     }
 
     userValidate(user: User): boolean {
@@ -109,26 +112,26 @@ export class DataBaseService {
     }
 
     // the user.name must be UNIQUE this method check thet 
-    nameExsist(name: string): boolean {
-
-        console.log(`start name exsist`)
-        console.log(name)
-        let sql = `SELECT * FROM users WHERE users.name=?`
-        this.connection.query(sql, [name], (error, results, fields) => {
-
-            if (error) {
-                console.log(`error from nameExsist DB error message : ${error.message}`)
-                return null;
-            }
-            if (results) {
-                console.log('the result : ', results)
-                console.log(`the result[0] : ${results[0]}`)
-                if (!results[0]) {
-                    return true;
+    nameExsist(name: string): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            console.log(`start name exsist`)
+            console.log(name)
+            let sql = `SELECT * FROM users WHERE users.name=?`
+            this.connection.query(sql, [name], (error, result) => {
+                if (error) {
+                    console.log(`error from nameExsist DB error message : ${error.message}`)
+                    return reject();
                 }
-            }
+                if (result) {
+                    console.log('the result : ', result)
+                    console.log(`the result[0] : ${result[0]}`)
+                    if (result[0]) {
+                        return resolve(true);
+                    }
+                }
+                return resolve(false)
+            })
         })
-        return false;
     }
 
     selectAll() {

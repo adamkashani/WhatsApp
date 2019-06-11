@@ -5,17 +5,18 @@ import { WebSocketSubject } from 'rxjs/observable/dom/WebSocketSubject';
 import { Observable, observable } from 'rxjs';
 import { CanActivate, Router } from '@angular/router';
 import { element } from 'protractor';
+import { User } from '../models/user';
 @Injectable({
   providedIn: 'root'
 })
 export class ClientService implements CanActivate {
 
-  // to send the mesaage
+  //clientName to send hem the mesaage
   clientName: string;
 
-  // urlLogin: string = 'http://localhost:8081/login';
-  urlLogin: string = 'http://localhost:8081/login';
-  urlOnlineUsers: string = 'http://localhost:8081/onlineUsers';
+  // urlLogin: string = 'http://localhost:8081/';
+
+  url: string = 'http://localhost:8080/';
   //string = name user chet , all the message between clients
   mapChat: Map<string, Array<Message>> = new Map();
 
@@ -32,15 +33,22 @@ export class ClientService implements CanActivate {
   public socket$: WebSocketSubject<Message>;
 
   constructor(private httpClient: HttpClient, public router: Router) {
-
     this.token = sessionStorage.getItem('token')
     this.sender = sessionStorage.getItem('userName')
+    if (this.sender && this.token) {
+      this.reconnect();
+    }
+  }
+
+  initSocket() {
     if (this.token) {
-      if (this.socket$) {
+      if (!this.socket$) {
+        console.log(`start reconnect `);
         this.onLogin();
         this.isBroadcast = false;
       }
     }
+
   }
 
   canActivate(route: import("@angular/router").ActivatedRouteSnapshot, state: import("@angular/router").RouterStateSnapshot): boolean | Observable<boolean> | Promise<boolean> {
@@ -56,7 +64,7 @@ export class ClientService implements CanActivate {
     //get all user list from server
     this.onlineUsers()
     //connect to webSocket 
-    this.socket$ = new WebSocketSubject(`ws://localhost:1002?token=${this.token}`);
+    this.socket$ = new WebSocketSubject(`ws://localhost:1001?token=${this.token}`);
     this.socket$
       .subscribe(
         (message) => {
@@ -67,6 +75,7 @@ export class ClientService implements CanActivate {
             // read ho send the message
             let chatList = this.mapChat.get(message.sender);
             if (chatList) {
+              //אולי נשמור פה רק את תוכן ההודעה שנישלחה
               chatList.push(message)
             } else {
               let chatList = new Array<Message>();
@@ -75,7 +84,7 @@ export class ClientService implements CanActivate {
             }
           }
         },
-        (err) => console.error(err),
+        (err) => console.log(JSON.stringify(err)),
         () => console.warn('Completed!')
       );
   }
@@ -91,24 +100,41 @@ export class ClientService implements CanActivate {
     }
   }
 
-  login(userName: string) {
-    console.log(userName)
+  login(user: User) {
+    console.log(`user to login : ${JSON.stringify(user)}`)
     // let headers = new HttpHeaders();
     // headers = headers.set('Content-Type', 'application/json');
-    return this.httpClient.post(this.urlLogin, { 'name': userName }, { responseType: 'text' });
+    return this.httpClient.post(this.url + 'login', user, { responseType: 'text' });
   }
 
   onlineUsers() {
-    this.httpClient.get<Set<string>>(this.urlOnlineUsers + `?token=${this.token}`).subscribe(
+    this.httpClient.get<Set<string>>(this.url + 'onlineUsers' + `?token=${this.token}`).subscribe(
       (next) => {
-        console.log(`the next value is ${JSON.stringify(next)}`)
+        console.log(`the list of onlineUsers is :  ${JSON.stringify(next)}`)
         next.forEach(element => {
           if (element != this.sender)
             this.listOfUsers.add(element)
-        });
-        console.log(`the listOfUsers value is ${JSON.stringify(this.listOfUsers)}`)
+        }
+        );
       }, (error) => {
-        console.log(`the error from get onlineUsers : ${error}`)
+        console.log(`the error from get onlineUsers : ${JSON.stringify(error)}`)
       })
+  }
+
+  reconnect() {
+    console.log(`start reconnect`)
+    this.httpClient.get(this.url + 'reconnect/' + this.sender +'/'+this.token ,  { responseType: 'text' }).subscribe((next) => {
+      console.log(next)
+      this.initSocket();
+    },
+      (error) => {
+
+      }
+    )
+  }
+
+
+  singIn(user: User) {
+    return this.httpClient.post(this.url + 'signIn', user, { responseType: 'text' });
   }
 }

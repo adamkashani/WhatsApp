@@ -36,7 +36,7 @@ app.use(function (req, res, next) {
 //initialize the WebSocket server instance
 const wss = new WebSocket.Server({ server });
 
-// the client map string the client name or token 
+// the client map string the client name
 const CLIENTS: Map<string, WebSocket> = new Map();
 
 //create redis service include init
@@ -69,13 +69,22 @@ app.post('/login', (request, response) => {
         })
 })
 
-// app.post('/signIn', (request, response) => {
-//     let user: User = request.body as User;
-//     sqlService.registration(user, response);
-// });
+// Rest api for registration 
+app.post('/signIn', (request, response) => {
+    let user: User = request.body as User;
+    sqlService.registration(user).then((resolve) => {
+        response.setHeader('Content-Type', 'text/html');
+        response.status(200)
+        response.send(`Registration successfully passed`)
+    }, (reject) => {
+        response.status(404)
+        response.send(reject)
+    })
+});
 
+// Rest api for get list of online users 
 app.get('/onlineUsers', (request, response) => {
-    let token = request.query.token; 
+    let token = request.query.token;
     console.log(`from onlineUsers the token value ${token}`)
     // if the request have token and the token on the redis db 
     if (token) {
@@ -83,12 +92,22 @@ app.get('/onlineUsers', (request, response) => {
             console.log("from server api onlineUsers users redis : ", resolve);
             response.json(resolve)
         },
-            (reject) => {
-                console.log("from server api the token not exists in the system  : ", token);
-                response.status(403)
-                response.send('Not registered in the system')
-            })
+        (reject) => {
+            console.log("from server api the token not exists in the system  : ", token);
+            response.status(403)
+            response.send('Not registered in the system')
+        })
     }
+})
+
+app.get('/reconnect/:userName/:token', (request, response) => {
+    let userName = request.params.userName;
+    let token = request.params.token;
+    console.log(`from reconnect the userName : ${userName}  the token : ${token}`)
+    //Insert the token = key and value = user name
+    redisService.redisClient.set(token, userName);
+    response.setHeader('Content-Type', 'text/html');
+    response.send(`Reconnect successfully passed`)
 })
 
 app.get('/', (request, response) => {

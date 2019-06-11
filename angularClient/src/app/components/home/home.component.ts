@@ -14,14 +14,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
   constructor(public clientService: ClientService) { }
 
   ngOnInit() {
-    this.clientService.onLogin();
-    // this.clientService.onlineUsers();
+    this.clientService.initSocket();
   }
   ngAfterViewInit(): void {
-    // this.clientService.isBroadcast = false;
+
   }
-
-
+  
 
   // to change the chaet text 
   changeChatClient(clientName: string) {

@@ -12,13 +12,15 @@ import { ChetComponent } from './components/chet/chet.component';
 import { HttpClientModule } from '@angular/common/http';
 import { CustomMaterialModule } from './material/material.module';
 import { HomeComponent } from './components/home/home.component';
+import { SingInComponent } from './components/sing-in/sing-in.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     ChetComponent,
-    HomeComponent
+    HomeComponent,
+    SingInComponent
   ],
   imports: [
     FormsModule,
